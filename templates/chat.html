@@ -4,7 +4,16 @@
 
 {% block head %}
   {{ super() }}
-
+  <style>
+    .debug-container {
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
 {% endblock %}
 
 {% block body %}
@@ -18,9 +27,19 @@
       {% endif %}
     {% endfor %}
   </div>
+
+  <div id="debug-logs" class="debug-container">
+    <h3>Debug Information</h3>
+    <pre id="debug-output">
+      {# Debug logs will appear here #}
+    </pre>
+  </div>
+
   <div class="loading-spinner" id="loading-spinner"></div>
   <form id="chat-form">
-    <p><input type="text" name="message" id="message" placeholder="Type your message" required style="width: 80%;"></p>
+    <p>
+      <input type="text" name="message" id="message" placeholder="Type your message" required style="width: 80%;">
+    </p>
     <p><input type="submit" value="Send"></p>
   </form>
   <p><a href="{{ url_for('upload') }}">Upload another file</a></p>
@@ -37,14 +56,19 @@
           url: '{{ url_for("chat_post") }}',
           data: { message: message },
           success: function(response) {
+            // Clear and update chat conversation
             $('#chat-container').empty();
-            response.forEach(function(msg) {
+            response.conversation.forEach(function(msg) {
               if (msg.role === 'assistant') {
                 $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
               } else {
                 $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
               }
             });
+            // Update debug logs
+            if (response.debug_logs) {
+              $('#debug-output').text(response.debug_logs.join("\n"));
+            }
             $('#message').val('');
           },
           complete: function() {
