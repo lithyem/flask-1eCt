@@ -38,9 +38,7 @@ async def get_chat_response(messages):
 @app.route('/')
 def index():
     session.clear()
-    openai_version = openai.__version__
-    limit = app.config.get('MAX_CONTENT_LENGTH')
-    return render_template("index.html", version=openai_version, limit=limit)
+    return render_template("index.html")
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -48,7 +46,7 @@ def upload():
     if request.method == 'POST':
         file = request.files.get('file')
         if file:
-            truncate_length = request.form.get('truncate_length', default=1000, type=int)
+            truncate_length = request.form.get('truncate_length', default=8000, type=int)
             filename = file.filename
             file_bytes = file.read()
             file_info = f"Uploaded file: {filename}, Size: {len(file_bytes)} bytes"
