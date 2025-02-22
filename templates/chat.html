@@ -31,9 +31,9 @@
   <script>
     // Update chat display with current conversation
     function updateChat(conversation) {
+      console.log("updateChat");
       $('#chat-container').empty();
       conversation.forEach(function(msg) {
-        console.log("updateChat");
         if (msg.role === 'assistant') {
           $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
         } else {
