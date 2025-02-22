@@ -71,14 +71,18 @@ def chat_post():
     user_message = request.form.get('message')
     if user_message:
         conversation.append({'role': 'user', 'content': user_message})
+        app.logger.debug("User message added: %s", user_message)  # Log user message
         try:
             # Run the asynchronous API call using asyncio.run.
             assistant_message = asyncio.run(get_chat_response(conversation))
             conversation.append({'role': 'assistant', 'content': assistant_message})
+            app.logger.debug("Assistant message added: %s", assistant_message)  # Log assistant message
         except Exception as e:
             error_text = f"Error: {str(e)}"
             conversation.append({'role': 'assistant', 'content': error_text})
+            app.logger.error("Error occurred: %s", error_text)  # Log error
         session['conversation'] = conversation
+        app.logger.debug("Updated conversation: %s", conversation)  # Log updated conversation
     return jsonify(conversation)
 
 if __name__ == '__main__':
