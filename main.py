@@ -11,10 +11,11 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # Async helper function to get chat response using the new OpenAI API interface.
 async def get_chat_response(messages):
-    return await openai.ChatCompletion.acreate(
+    response = await openai.ChatCompletion.acreate(
         model="gpt-3.5-turbo",
         messages=messages,
     )
+    return response.choices[0].message['content']
 
 @app.route('/')
 def index():
