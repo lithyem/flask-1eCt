@@ -16,8 +16,8 @@ async def get_chat_response(messages):
         model="gpt-3.5-turbo",
         messages=messages,
     )
-    # Return the assistant's message content directly.
-    return response.choices[0].message['content']
+    # Access the content attribute directly.
+    return response.choices[0].message.content
 
 @app.route('/')
 def index():
