@@ -33,6 +33,8 @@ def index():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
+        # Clear the session to start a new conversation
+        session.clear()
         file = request.files.get('file')
         if file:
             filename = file.filename
