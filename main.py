@@ -2,6 +2,7 @@ import os
 import re
 import asyncio
 import logging
+import unicodedata
 from openai import AsyncOpenAI
 import openai  # For accessing openai.__version__
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify
@@ -35,12 +36,12 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 in_memory_handler.setFormatter(formatter)
 logger.addHandler(in_memory_handler)
 
-# Function to sanitize text by removing BOM and non-printable control characters.
+# Function to sanitize text by removing BOM and control characters.
 def sanitize_text(text):
     # Remove Byte Order Mark (BOM) if present.
     text = text.lstrip('\ufeff')
-    # Remove non-printable control characters except newline (\n) and tab (\t)
-    return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', text)
+    # Remove all control characters (Unicode category "C") except newline and tab.
+    return ''.join(ch for ch in text if (unicodedata.category(ch)[0] != 'C' or ch in '\n\t'))
 
 # Initialize AsyncOpenAI with your API key.
 aclient = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -76,14 +77,16 @@ def upload():
         file = request.files.get('file')
         if file:
             filename = file.filename
-            file_size = len(file.read())
-            file_info = f"Uploaded file: {filename}, Size: {file_size} bytes"
+            # Read file content once to get file size.
+            file_bytes = file.read()
+            file_info = f"Uploaded file: {filename}, Size: {len(file_bytes)} bytes"
             file.seek(0)  # Reset file pointer to the beginning.
+            # Process file based on its type.
             if filename.lower().endswith('.docx'):
                 document = Document(file)
                 content = '\n'.join([para.text for para in document.paragraphs])
             else:
-                content = file.read().decode('utf-8')
+                content = file.read().decode('utf-8', errors='replace')
             # Sanitize the file content and file_info.
             content = sanitize_text(content)
             file_info = sanitize_text(file_info)
