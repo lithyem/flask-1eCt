@@ -4,6 +4,6 @@
 
 {% block body %}
   <h1>Welcome to the File-Chat App</h1>
-  <p>Current OpenAI version installed: {{ version }}</p>
+  <p>Current OpenAI version installed: {{ version }} - Limit: {{ limit }}</p>
   <p><a href="{{ url_for('upload') }}">Upload a file to start a conversation</a></p>
 {% endblock %}

@@ -39,7 +39,8 @@ async def get_chat_response(messages):
 def index():
     session.clear()
     openai_version = openai.__version__
-    return render_template("index.html", version=openai_version)
+    limit = app.config.get('MAX_CONTENT_LENGTH')
+    return render_template("index.html", version=openai_version, limit=limit)
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
