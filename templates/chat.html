@@ -4,14 +4,7 @@
 
 {% block head %}
   {{ super() }}
-  <style>
-    .chat-container {
-      border: 1px solid #ccc;
-      padding: 10px;
-      max-height: 300px;
-      overflow: auto;
-    }
-  </style>
+
 {% endblock %}
 
 {% block body %}
@@ -21,6 +14,7 @@
       <p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|e }}</p>
     {% endfor %}
   </div>
+  <div class="loading-spinner" id="loading-spinner"></div>
   <form id="chat-form">
     <p><input type="text" name="message" id="message" placeholder="Type your message" required style="width: 80%;"></p>
     <p><input type="submit" value="Send"></p>
@@ -33,6 +27,7 @@
       $('#chat-form').on('submit', function(event) {
         event.preventDefault();
         var message = $('#message').val();
+        $('#loading-spinner').show();
         $.ajax({
           type: 'POST',
           url: '{{ url_for("chat_post") }}',
@@ -43,6 +38,9 @@
               $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
             });
             $('#message').val('');
+          },
+          complete: function() {
+            $('#loading-spinner').hide();
           }
         });
       });
