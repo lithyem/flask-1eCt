@@ -46,6 +46,39 @@ def chat():
         user_message = request.form.get('message')
         if user_message:
             conversation.append({'role': 'user', 'content': user_message})
+            try:
+                # Call the OpenAI Chat API with the conversation history.
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=conversation
+                )
+                assistant_message = response['choices'][0]['message']['content']
+                conversation.append({'role': 'assistant', 'content': assistant_message})
+            except Exception as e:
+                # Log the error and also display it in the chat interface for debugging.
+                conversation.append({'role': 'assistant', 'content': f"Error: {str(e)}"})
+            session['conversation'] = conversation
+
+    return render_template_string("""
+    <h1>Chat</h1>
+    <div style="border:1px solid #ccc; padding: 10px; max-height:300px; overflow:auto;">
+      {% for msg in conversation %}
+         <p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|e }}</p>
+      {% endfor %}
+    </div>
+    <form method="post">
+         <p><input type="text" name="message" placeholder="Type your message" required style="width: 80%;"></p>
+         <p><input type="submit" value="Send"></p>
+    </form>
+    <p><a href="{{ url_for('upload') }}">Upload another file</a></p>
+    """, conversation=conversation)
+
+    conversation = session.get('conversation', [])
+    
+    if request.method == 'POST':
+        user_message = request.form.get('message')
+        if user_message:
+            conversation.append({'role': 'user', 'content': user_message})
             # Call the OpenAI Chat API with the conversation history.
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
