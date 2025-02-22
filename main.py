@@ -77,7 +77,7 @@ def upload():
                 content = file.read().decode('utf-8')
             # Initialize the conversation with the file content as context.
             session['conversation'] = [
-                {'role': 'system', 'content': f'The following is the file content:\n{content}'},
+                {'role': 'system', 'content': f'The following is the file content:\ntest'},
                 {'role': 'system', 'content': file_info}
             ]
             logger.debug("New conversation initialized with file info: %s", file_info)
