@@ -44,6 +44,8 @@ def upload():
         file = request.files.get('file')
         if file:
             filename = file.filename
+            file_info = f"Uploaded file: {filename}, Size: {len(file.read())} bytes"
+            file.seek(0)  # Reset file pointer to the beginning
             if filename.endswith('.docx'):
                 document = Document(file)
                 content = '\n'.join([para.text for para in document.paragraphs])
@@ -51,9 +53,10 @@ def upload():
                 content = file.read().decode('utf-8')
             # Initialize the conversation with the file content as context.
             session['conversation'] = [
-                {'role': 'system', 'content': f'The following is the file content:\n{content}'}
+                {'role': 'system', 'content': f'The following is the file content:\n{content}'},
+                {'role': 'system', 'content': file_info}
             ]
-            app.logger.debug("New conversation initialized")  # Debug statement
+            app.logger.debug("New conversation initialized with file info")  # Debug statement
             return redirect(url_for('chat'))
         return "No file uploaded", 400
 
