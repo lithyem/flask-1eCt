@@ -13,7 +13,7 @@ aclient = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 # Async helper function to get chat response using the new OpenAI API interface.
 async def get_chat_response(messages):
     response = await aclient.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="o1",
         messages=messages,
     )
     # Access the content attribute directly.
