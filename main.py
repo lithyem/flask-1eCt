@@ -31,6 +31,7 @@ async def get_chat_response(messages):
 @app.route('/')
 def index():
     # Display the current OpenAI version.
+    session.clear()
     openai_version = openai.__version__
     return render_template("index.html", version=openai_version)
 
