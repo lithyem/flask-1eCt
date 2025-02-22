@@ -11,7 +11,6 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # Define an async helper that calls the asynchronous chat completion API.
 async def get_chat_response(messages):
-    # Importing ChatCompletion here avoids direct synchronous access.
     from openai import ChatCompletion
     return await ChatCompletion.acreate(
         model="gpt-3.5-turbo",
@@ -20,10 +19,13 @@ async def get_chat_response(messages):
 
 @app.route('/')
 def index():
+    # Get the current OpenAI version
+    openai_version = openai.__version__
     return render_template_string("""
     <h1>Welcome to the File-Chat App</h1>
+    <p>Current OpenAI version installed: {{ version }}</p>
     <p><a href="{{ url_for('upload') }}">Upload a file to start a conversation</a></p>
-    """)
+    """, version=openai_version)
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
