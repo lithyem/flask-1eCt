@@ -2,6 +2,7 @@ import os
 import re
 import asyncio
 import logging
+import unicodedata
 from openai import AsyncOpenAI
 import openai  # For accessing openai.__version__
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify
@@ -37,14 +38,11 @@ logger.addHandler(in_memory_handler)
 
 # Revised function to sanitize text:
 # 1. Removes BOM if present.
-# 2. Removes control characters (ASCII 0x00-0x08, 0x0B-0x0C, 0x0E-0x1F) except newline (\n), carriage return (\r) and tab (\t).
-# 3. Removes Unicode line and paragraph separators (U+2028 and U+2029) that can break JavaScript.
+# 2. Removes unwanted ASCII control characters (0x00-0x08, 0x0B-0x0C, 0x0E-0x1F) except newline, carriage return, and tab.
+# 3. Removes Unicode line and paragraph separators (U+2028, U+2029).
 def sanitize_text(text):
-    # Remove Byte Order Mark (BOM)
     text = text.lstrip('\ufeff')
-    # Remove unwanted ASCII control characters.
     text = re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', text)
-    # Remove Unicode line separator and paragraph separator.
     text = re.sub(u'[\u2028\u2029]', '', text)
     return text
 
@@ -58,14 +56,12 @@ async def get_chat_response(messages):
         messages=messages,
     )
     content = response.choices[0].message.content
-    # Check if the response is in Markdown format.
     if content.startswith('#') or any(tag in content for tag in ['*', '-', '`']):
         content = markdown2.markdown(content, extras=["tables"])
     return content
 
 @app.route('/')
 def index():
-    # Display the current OpenAI version.
     session.clear()
     openai_version = openai.__version__
     logger.debug("Index page loaded, OpenAI version: %s", openai_version)
@@ -74,7 +70,6 @@ def index():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    # Clear the session to start a new conversation.
     logger.debug("Session cleared")
     session.clear()
     logger.debug("Upload page loaded, session cleared")
@@ -82,25 +77,22 @@ def upload():
         file = request.files.get('file')
         if file:
             filename = file.filename
-            # Read file content once to determine file size.
             file_bytes = file.read()
             file_info = f"Uploaded file: {filename}, Size: {len(file_bytes)} bytes"
-            file.seek(0)  # Reset file pointer to beginning.
-            # Process file based on its type.
+            file.seek(0)
             if filename.lower().endswith('.docx'):
                 document = Document(file)
                 content = '\n'.join([para.text for para in document.paragraphs])
             else:
                 content = file.read().decode('utf-8', errors='replace')
-            # Sanitize the file content and file_info.
             content = sanitize_text(content)
             file_info = sanitize_text(file_info)
-            # Escape HTML characters.
             content = content.replace("<", "&lt;").replace(">", "&gt;")
             file_info = file_info.replace("<", "&lt;").replace(">", "&gt;")
-            # Initialize the conversation with the sanitized file content as context.
+            # Truncate content to the first 1000 characters.
+            truncated_content = content[:1000]
             session['conversation'] = [
-                {'role': 'system', 'content': f'The following is the file content:\n{content}'},
+                {'role': 'system', 'content': f'The following is the file content (truncated to 1000 characters):\n{truncated_content}'},
                 {'role': 'system', 'content': file_info}
             ]
             logger.debug("New conversation initialized with file info: %s", file_info)
@@ -123,7 +115,6 @@ def chat_post():
         conversation.append({'role': 'user', 'content': user_message})
         logger.debug("User message added: %s", user_message)
         try:
-            # Run the asynchronous API call using asyncio.run.
             assistant_message = asyncio.run(get_chat_response(conversation))
             conversation.append({'role': 'assistant', 'content': assistant_message})
             logger.debug("Assistant message added: %s", assistant_message)
@@ -133,7 +124,6 @@ def chat_post():
             logger.error("Error occurred: %s", error_text)
         session['conversation'] = conversation
         logger.debug("Updated conversation: %s", conversation)
-    # Retrieve the latest debug logs (last 20 entries).
     debug_logs = in_memory_handler.log_records[-20:]
     return jsonify({
         'conversation': conversation,
