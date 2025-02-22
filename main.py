@@ -1,20 +1,19 @@
 import os
 import asyncio
-import openai
+from openai import AsyncOpenAI
+
+aclient = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 from flask import Flask, request, render_template_string, redirect, url_for, session
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
 
 # Set your OpenAI API key from an environment variable.
-openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # Async helper function to get chat response using the new OpenAI API interface.
 async def get_chat_response(messages):
-    response = await openai.ChatCompletion.acreate(
-        model="gpt-3.5-turbo",
-        messages=messages,
-    )
+    response = await aclient.chat.completions.create(model="gpt-3.5-turbo",
+    messages=messages)
     return response.choices[0].message['content']
 
 @app.route('/')
@@ -51,7 +50,7 @@ def upload():
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
     conversation = session.get('conversation', [])
-    
+
     if request.method == 'POST':
         user_message = request.form.get('message')
         if user_message:
