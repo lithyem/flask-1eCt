@@ -35,6 +35,7 @@ def index():
     session.clear()
     openai_version = openai.__version__
     logger.debug("Index page loaded, OpenAI version: %s", openai_version)
+    app.logger.debug("Index page loaded, OpenAI version: %s", openai.__version__)
     return render_template("index.html", version=openai_version)
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -60,7 +61,7 @@ def upload():
                 {'role': 'system', 'content': file_info}
             ]
             logger.debug("New conversation initialized with file info: %s", file_info)  # Debug statement
-            #return redirect(url_for('chat'))
+            return redirect(url_for('chat'))
         return "No file uploaded", 400
 
     return render_template("upload.html")
