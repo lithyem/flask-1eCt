@@ -9,6 +9,15 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
 # Set your OpenAI API key from an environment variable.
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
+# Define an async helper that calls the asynchronous chat completion API.
+async def get_chat_response(messages):
+    # Importing ChatCompletion here avoids direct synchronous access.
+    from openai import ChatCompletion
+    return await ChatCompletion.acreate(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+
 @app.route('/')
 def index():
     return render_template_string("""
@@ -46,19 +55,12 @@ def chat():
         if user_message:
             conversation.append({'role': 'user', 'content': user_message})
             try:
-                # Log the outgoing conversation for debugging.
-                print("Sending conversation to API:", conversation)
-                # Use asyncio.run to call the asynchronous chat completion method.
-                response = asyncio.run(openai.ChatCompletion.acreate(
-                    model="gpt-3.5-turbo",
-                    messages=conversation
-                ))
-                print("Received API response:", response)
+                # Call the asynchronous helper function using asyncio.run
+                response = asyncio.run(get_chat_response(conversation))
                 assistant_message = response['choices'][0]['message']['content']
                 conversation.append({'role': 'assistant', 'content': assistant_message})
             except Exception as e:
                 error_text = f"Error: {str(e)}"
-                print(error_text)
                 conversation.append({'role': 'assistant', 'content': error_text})
             session['conversation'] = conversation
 
