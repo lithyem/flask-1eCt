@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
 
 # Set your OpenAI API key from an environment variable
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+openai.api_key = "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"
 
 @app.route('/')
 def index():
