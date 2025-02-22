@@ -76,8 +76,6 @@ def upload():
     if request.method == 'POST':
         file = request.files.get('file')
         if file:
-            # Get truncate length from form (default to 1000 if not provided)
-            truncate_length = request.form.get('truncate_length', default=1000, type=int)
             filename = file.filename
             file_bytes = file.read()
             file_info = f"Uploaded file: {filename}, Size: {len(file_bytes)} bytes"
@@ -87,18 +85,14 @@ def upload():
                 content = '\n'.join([para.text for para in document.paragraphs])
             else:
                 content = file.read().decode('utf-8', errors='replace')
-            # Sanitize the file content and file_info.
             content = sanitize_text(content)
             file_info = sanitize_text(file_info)
-            # Escape HTML characters.
             content = content.replace("<", "&lt;").replace(">", "&gt;")
             file_info = file_info.replace("<", "&lt;").replace(">", "&gt;")
-            # Store the full sanitized content for possible future use.
-            session['full_content'] = content
-            # Truncate content according to the provided length.
-            truncated_content = content[:truncate_length]
+            # Truncate content to the first 1000 characters.
+            truncated_content = content[:1000]
             session['conversation'] = [
-                {'role': 'system', 'content': f'The following is the file content (truncated to {truncate_length} characters):\n{truncated_content}'},
+                {'role': 'system', 'content': f'The following is the file content (truncated to 1000 characters):\n{truncated_content}'},
                 {'role': 'system', 'content': file_info}
             ]
             logger.debug("New conversation initialized with file info: %s", file_info)
