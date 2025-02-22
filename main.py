@@ -60,7 +60,7 @@ def upload():
                 {'role': 'system', 'content': file_info}
             ]
             logger.debug("New conversation initialized with file info: %s", file_info)  # Debug statement
-            return redirect(url_for('chat'))
+            #return redirect(url_for('chat'))
         return "No file uploaded", 400
 
     return render_template("upload.html")
