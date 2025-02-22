@@ -4,6 +4,7 @@
 
 {% block head %}
   {{ super() }}
+
 {% endblock %}
 
 {% block body %}
@@ -18,7 +19,7 @@
     {% endfor %}
   </div>
 
-  <div class="loading-spinner" id="loading-spinner" style="display: none;"></div>
+  <div class="loading-spinner" id="loading-spinner"></div>
   <form id="chat-form">
     <p>
       <input type="text" name="message" id="message" placeholder="Type your message" required style="width: 80%;">
@@ -29,59 +30,7 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    // Update chat display with current conversation
-    function updateChat(conversation) {
-      console.log("updateChat");
-      console.log(conversation);
-      $('#chat-container').empty();
-      conversation.forEach(function(msg) {
-        console.log("loop over chunks");
-        if (msg.role === 'assistant') {
-          $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
-        } else {
-          $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
-        }
-      });
-    }
-
-    // Function to request the next file chunk from the server
-    function sendNextChunk() {
-      console.log("sendNextChunk");
-      $.ajax({
-        type: 'POST',
-        url: '{{ url_for("send_chunk") }}',
-        success: function(response) {
-          
-          updateChat(response.conversation);
-          if (response.chunk_remaining > 0) {
-            // Wait 1 second before sending the next chunk
-            setTimeout(sendNextChunk, 1000);
-          }
-        },
-        error: function() {
-          console.error("Error sending file chunk.");
-        }
-      });
-    }
-
     $(document).ready(function() {
-      // On page load, automatically trigger sending of file chunks.
-      $.ajax({
-        type: 'POST',
-        url: '{{ url_for("send_chunk") }}',
-        success: function(response) {
-          console.log("ready");
-          updateChat(response.conversation);
-          if (response.chunk_remaining > 0) {
-            setTimeout(sendNextChunk, 1000);
-          }
-        },
-        error: function() {
-          console.error("Error initializing file chunk sending.");
-        }
-      });
-
-      // Handle user sending a message.
       $('#chat-form').on('submit', function(event) {
         event.preventDefault();
         var message = $('#message').val();
@@ -91,7 +40,19 @@
           url: '{{ url_for("chat_post") }}',
           data: { message: message },
           success: function(response) {
-            updateChat(response.conversation);
+            // Clear and update chat conversation
+            $('#chat-container').empty();
+            response.conversation.forEach(function(msg) {
+              if (msg.role === 'assistant') {
+                $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
+              } else {
+                $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
+              }
+            });
+            // Update debug logs
+            if (response.debug_logs) {
+              $('#debug-output').text(response.debug_logs.join("\n"));
+            }
             $('#message').val('');
           },
           complete: function() {
