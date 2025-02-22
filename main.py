@@ -1,4 +1,5 @@
 import os
+import re
 import asyncio
 import logging
 from openai import AsyncOpenAI
@@ -34,6 +35,13 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 in_memory_handler.setFormatter(formatter)
 logger.addHandler(in_memory_handler)
 
+# Function to sanitize text by removing BOM and non-printable control characters.
+def sanitize_text(text):
+    # Remove Byte Order Mark (BOM) if present.
+    text = text.lstrip('\ufeff')
+    # Remove non-printable control characters except newline (\n) and tab (\t)
+    return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', text)
+
 # Initialize AsyncOpenAI with your API key.
 aclient = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
@@ -68,17 +76,24 @@ def upload():
         file = request.files.get('file')
         if file:
             filename = file.filename
-            file_info = f"Uploaded file: {filename}, Size: {len(file.read())} bytes"
+            file_size = len(file.read())
+            file_info = f"Uploaded file: {filename}, Size: {file_size} bytes"
             file.seek(0)  # Reset file pointer to the beginning.
-            if filename.endswith('.docx'):
+            if filename.lower().endswith('.docx'):
                 document = Document(file)
                 content = '\n'.join([para.text for para in document.paragraphs])
             else:
                 content = file.read().decode('utf-8')
-            # Initialize the conversation with the file content as context.
+            # Sanitize the file content and file_info.
+            content = sanitize_text(content)
+            file_info = sanitize_text(file_info)
+            # Escape HTML characters.
+            content = content.replace("<", "&lt;").replace(">", "&gt;")
+            file_info = file_info.replace("<", "&lt;").replace(">", "&gt;")
+            # Initialize the conversation with the sanitized file content as context.
             session['conversation'] = [
-                {'role': 'system', 'content': f'The following is the file content:\n{content.replace("<", "&lt;").replace(">", "&gt;")}'},
-                {'role': 'system', 'content': file_info.replace("<", "&lt;").replace(">", "&gt;")}
+                {'role': 'system', 'content': f'The following is the file content:\n{content}'},
+                {'role': 'system', 'content': file_info}
             ]
             logger.debug("New conversation initialized with file info: %s", file_info)
             return redirect(url_for('chat'))
