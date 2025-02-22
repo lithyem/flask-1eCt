@@ -11,6 +11,7 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # Define an async helper that calls the asynchronous chat completion API.
 async def get_chat_response(messages):
+    # Import ChatCompletion here to avoid direct synchronous access.
     from openai import ChatCompletion
     return await ChatCompletion.acreate(
         model="gpt-3.5-turbo",
@@ -19,7 +20,7 @@ async def get_chat_response(messages):
 
 @app.route('/')
 def index():
-    # Get the current OpenAI version
+    # Retrieve and display the current OpenAI version
     openai_version = openai.__version__
     return render_template_string("""
     <h1>Welcome to the File-Chat App</h1>
@@ -57,7 +58,7 @@ def chat():
         if user_message:
             conversation.append({'role': 'user', 'content': user_message})
             try:
-                # Call the asynchronous helper function using asyncio.run
+                # Run the asynchronous API call using asyncio.run
                 response = asyncio.run(get_chat_response(conversation))
                 assistant_message = response['choices'][0]['message']['content']
                 conversation.append({'role': 'assistant', 'content': assistant_message})
