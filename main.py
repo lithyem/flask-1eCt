@@ -20,7 +20,7 @@ async def get_chat_response(messages):
     )
     content = response.choices[0].message.content
     # Check if the response is in Markdown format
-    if content.startswith('#') or any tag in content for tag in ['*', '-', '`']:
+    if content.startswith('#') or any(tag in content for tag in ['*', '-', '`']):
         content = markdown2.markdown(content, extras=["tables"])
     return content
 
