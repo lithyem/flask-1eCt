@@ -10,6 +10,6 @@
     "FLASK_ENV": "development",
     "FLASK_APP": "main.py",
     "FLASK_SECRET_KEY": "your_default_secret",
-    "OPENAI_API_KEY": "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"
+    "OPENAI_API_KEY": "your_openai_api_key"
   }
 }
