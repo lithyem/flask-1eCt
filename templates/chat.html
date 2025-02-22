@@ -11,7 +11,11 @@
   <h1>Chat</h1>
   <div class="chat-container" id="chat-container">
     {% for msg in conversation %}
-      <p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|e }}</p>
+      {% if msg.role == 'assistant' %}
+        <p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|safe }}</p>
+      {% else %}
+        <p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|e }}</p>
+      {% endif %}
     {% endfor %}
   </div>
   <div class="loading-spinner" id="loading-spinner"></div>
@@ -35,7 +39,11 @@
           success: function(response) {
             $('#chat-container').empty();
             response.forEach(function(msg) {
-              $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
+              if (msg.role === 'assistant') {
+                $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
+              } else {
+                $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
+              }
             });
             $('#message').val('');
           },

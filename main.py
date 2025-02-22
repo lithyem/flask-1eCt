@@ -3,6 +3,7 @@ import asyncio
 from openai import AsyncOpenAI
 import openai  # For accessing openai.__version__
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify
+import markdown2  # Add this import for Markdown to HTML conversion
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
@@ -16,8 +17,11 @@ async def get_chat_response(messages):
         model="gpt-4o",
         messages=messages,
     )
-    # Access the content attribute directly.
-    return response.choices[0].message.content
+    content = response.choices[0].message.content
+    # Check if the response is in Markdown format
+    if content.startswith('#') or any(tag in content for tag in ['*', '-', '`']):
+        content = markdown2.markdown(content)
+    return content
 
 @app.route('/')
 def index():
