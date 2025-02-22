@@ -12,6 +12,7 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
 
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Initialize AsyncOpenAI with your API key.
 aclient = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -33,14 +34,16 @@ def index():
     # Display the current OpenAI version.
     session.clear()
     openai_version = openai.__version__
+    logger.debug("Index page loaded, OpenAI version: %s", openai_version)
     return render_template("index.html", version=openai_version)
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     session.clear()
+    logger.debug("Upload page loaded, session cleared")
     if request.method == 'POST':
         # Clear the session to start a new conversation
-        app.logger.debug("Session cleared")  # Debug statement
+        logger.debug("Session cleared")  # Debug statement
         file = request.files.get('file')
         if file:
             filename = file.filename
@@ -56,7 +59,7 @@ def upload():
                 {'role': 'system', 'content': f'The following is the file content:\n{content}'},
                 {'role': 'system', 'content': file_info}
             ]
-            app.logger.debug("New conversation initialized with file info")  # Debug statement
+            logger.debug("New conversation initialized with file info: %s", file_info)  # Debug statement
             return redirect(url_for('chat'))
         return "No file uploaded", 400
 
@@ -65,7 +68,7 @@ def upload():
 @app.route('/chat', methods=['GET'])
 def chat():
     conversation = session.get('conversation', [])
-    app.logger.debug("Current conversation: %s", conversation)  # Debug statement
+    logger.debug("Current conversation: %s", conversation)  # Debug statement
     return render_template("chat.html", conversation=conversation)
 
 @app.route('/chat', methods=['POST'])
@@ -74,18 +77,18 @@ def chat_post():
     user_message = request.form.get('message')
     if user_message:
         conversation.append({'role': 'user', 'content': user_message})
-        app.logger.debug("User message added: %s", user_message)  # Log user message
+        logger.debug("User message added: %s", user_message)  # Log user message
         try:
             # Run the asynchronous API call using asyncio.run.
             assistant_message = asyncio.run(get_chat_response(conversation))
             conversation.append({'role': 'assistant', 'content': assistant_message})
-            app.logger.debug("Assistant message added: %s", assistant_message)  # Log assistant message
+            logger.debug("Assistant message added: %s", assistant_message)  # Log assistant message
         except Exception as e:
             error_text = f"Error: {str(e)}"
             conversation.append({'role': 'assistant', 'content': error_text})
-            app.logger.error("Error occurred: %s", error_text)  # Log error
+            logger.error("Error occurred: %s", error_text)  # Log error
         session['conversation'] = conversation
-        app.logger.debug("Updated conversation: %s", conversation)  # Log updated conversation
+        logger.debug("Updated conversation: %s", conversation)  # Log updated conversation
     return jsonify(conversation)
 
 if __name__ == '__main__':
