@@ -34,6 +34,7 @@
       console.log("updateChat");
       $('#chat-container').empty();
       conversation.forEach(function(msg) {
+        console.log("loop over chunks");
         if (msg.role === 'assistant') {
           $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
         } else {
@@ -44,11 +45,12 @@
 
     // Function to request the next file chunk from the server
     function sendNextChunk() {
+      console.log("sendNextChunk");
       $.ajax({
         type: 'POST',
         url: '{{ url_for("send_chunk") }}',
         success: function(response) {
-          console.log("sendNextChunk");
+          
           updateChat(response.conversation);
           if (response.chunk_remaining > 0) {
             // Wait 1 second before sending the next chunk
