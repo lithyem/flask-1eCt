@@ -35,6 +35,7 @@ def upload():
     if request.method == 'POST':
         # Clear the session to start a new conversation
         session.clear()
+        print("Session cleared")  # Debug statement
         file = request.files.get('file')
         if file:
             filename = file.filename
@@ -47,6 +48,7 @@ def upload():
             session['conversation'] = [
                 {'role': 'system', 'content': f'The following is the file content:\n{content}'}
             ]
+            print("New conversation initialized")  # Debug statement
             return redirect(url_for('chat'))
         return "No file uploaded", 400
 
@@ -55,6 +57,7 @@ def upload():
 @app.route('/chat', methods=['GET'])
 def chat():
     conversation = session.get('conversation', [])
+    print("Current conversation:", conversation)  # Debug statement
     return render_template("chat.html", conversation=conversation)
 
 @app.route('/chat', methods=['POST'])
