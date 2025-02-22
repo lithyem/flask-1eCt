@@ -2,6 +2,8 @@ import os
 import asyncio
 import openai
 from flask import Flask, request, render_template_string, redirect, url_for, session
+# Import ChatCompletion from the internal API resources to avoid direct attribute access.
+from openai.api_resources.chat_completion import ChatCompletion
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
@@ -11,11 +13,11 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # Async helper function to get chat response using the new OpenAI API interface.
 async def get_chat_response(messages):
-    response = await openai.ChatCompletion.acreate(
+    response = await ChatCompletion.acreate(
         model="gpt-3.5-turbo",
         messages=messages,
     )
-    return response.choices[0].message['content']
+    return response  # Return the full response object
 
 @app.route('/')
 def index():
@@ -59,6 +61,7 @@ def chat():
             try:
                 # Run the asynchronous API call using asyncio.run.
                 response = asyncio.run(get_chat_response(conversation))
+                # Extract the assistant's message.
                 assistant_message = response['choices'][0]['message']['content']
                 conversation.append({'role': 'assistant', 'content': assistant_message})
             except Exception as e:
