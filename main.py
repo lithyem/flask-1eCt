@@ -37,9 +37,9 @@ def index():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
+    session.clear()
     if request.method == 'POST':
         # Clear the session to start a new conversation
-        session.clear()
         app.logger.debug("Session cleared")  # Debug statement
         file = request.files.get('file')
         if file:
