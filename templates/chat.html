@@ -67,6 +67,7 @@
         type: 'POST',
         url: '{{ url_for("send_chunk") }}',
         success: function(response) {
+          console.log("ready");
           updateChat(response.conversation);
           if (response.chunk_remaining > 0) {
             setTimeout(sendNextChunk, 1000);
