@@ -33,6 +33,7 @@
     function updateChat(conversation) {
       $('#chat-container').empty();
       conversation.forEach(function(msg) {
+        console.log("updateChat");
         if (msg.role === 'assistant') {
           $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
         } else {
@@ -47,6 +48,7 @@
         type: 'POST',
         url: '{{ url_for("send_chunk") }}',
         success: function(response) {
+          console.log("sendNextChunk");
           updateChat(response.conversation);
           if (response.chunk_remaining > 0) {
             // Wait 1 second before sending the next chunk
