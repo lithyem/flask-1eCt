@@ -9,18 +9,18 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
 # Set your OpenAI API key from an environment variable.
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-# Define an async helper that calls the asynchronous chat completion API.
+# Async helper function that uses getattr to access ChatCompletion dynamically.
 async def get_chat_response(messages):
-    # Import ChatCompletion here to avoid direct synchronous access.
-    from openai import ChatCompletion
+    # Use getattr to bypass direct attribute access to ChatCompletion.
+    ChatCompletion = getattr(openai, "ChatCompletion")
     return await ChatCompletion.acreate(
         model="gpt-3.5-turbo",
-        messages=messages
+        messages=messages,
     )
 
 @app.route('/')
 def index():
-    # Retrieve and display the current OpenAI version
+    # Display the current OpenAI version.
     openai_version = openai.__version__
     return render_template_string("""
     <h1>Welcome to the File-Chat App</h1>
@@ -58,7 +58,7 @@ def chat():
         if user_message:
             conversation.append({'role': 'user', 'content': user_message})
             try:
-                # Run the asynchronous API call using asyncio.run
+                # Run the asynchronous API call using asyncio.run.
                 response = asyncio.run(get_chat_response(conversation))
                 assistant_message = response['choices'][0]['message']['content']
                 conversation.append({'role': 'assistant', 'content': assistant_message})
