@@ -4,6 +4,7 @@ from openai import AsyncOpenAI
 import openai  # For accessing openai.__version__
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify
 import markdown2  # Add this import for Markdown to HTML conversion
+from docx import Document  # Add this import for handling .docx files
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
@@ -19,7 +20,7 @@ async def get_chat_response(messages):
     )
     content = response.choices[0].message.content
     # Check if the response is in Markdown format
-    if content.startswith('#') or any(tag in content for tag in ['*', '-', '`']):
+    if content.startswith('#') or any tag in content for tag in ['*', '-', '`']):
         content = markdown2.markdown(content, extras=["tables"])
     return content
 
@@ -34,7 +35,12 @@ def upload():
     if request.method == 'POST':
         file = request.files.get('file')
         if file:
-            content = file.read().decode('utf-8')
+            filename = file.filename
+            if filename.endswith('.docx'):
+                document = Document(file)
+                content = '\n'.join([para.text for para in document.paragraphs])
+            else:
+                content = file.read().decode('utf-8')
             # Initialize the conversation with the file content as context.
             session['conversation'] = [
                 {'role': 'system', 'content': f'The following is the file content:\n{content}'}
