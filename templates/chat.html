@@ -4,16 +4,7 @@
 
 {% block head %}
   {{ super() }}
-  <style>
-    .debug-container {
-      background-color: #f9f9f9;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-top: 20px;
-      font-family: monospace;
-      white-space: pre-wrap;
-    }
-  </style>
+
 {% endblock %}
 
 {% block body %}
@@ -26,13 +17,6 @@
         <p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|e }}</p>
       {% endif %}
     {% endfor %}
-  </div>
-
-  <div id="debug-logs" class="debug-container">
-    <h3>Debug Information</h3>
-    <pre id="debug-output">
-      {# Debug logs will appear here #}
-    </pre>
   </div>
 
   <div class="loading-spinner" id="loading-spinner"></div>
