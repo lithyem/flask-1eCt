@@ -9,11 +9,9 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
 # Set your OpenAI API key from an environment variable.
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-# Async helper function that uses getattr to access ChatCompletion dynamically.
+# Async helper function to get chat response using the new OpenAI API interface.
 async def get_chat_response(messages):
-    # Use getattr to bypass direct attribute access to ChatCompletion.
-    ChatCompletion = getattr(openai, "ChatCompletion")
-    return await ChatCompletion.acreate(
+    return await openai.ChatCompletion.acreate(
         model="gpt-3.5-turbo",
         messages=messages,
     )
