@@ -76,6 +76,7 @@ def upload():
     if request.method == 'POST':
         file = request.files.get('file')
         if file:
+            truncate_length = request.form.get('truncate_length', default=1000, type=int)
             filename = file.filename
             file_bytes = file.read()
             file_info = f"Uploaded file: {filename}, Size: {len(file_bytes)} bytes"
@@ -90,9 +91,9 @@ def upload():
             content = content.replace("<", "&lt;").replace(">", "&gt;")
             file_info = file_info.replace("<", "&lt;").replace(">", "&gt;")
             # Truncate content to the first 1000 characters.
-            truncated_content = content[:1000]
+            truncated_content = content[:truncate_length]
             session['conversation'] = [
-                {'role': 'system', 'content': f'The following is the file content (truncated to 1000 characters):\n{truncated_content}'},
+                {'role': 'system', 'content': f'The following is the file content (truncated to {truncate_length} characters):\n{truncated_content}'},
                 {'role': 'system', 'content': file_info}
             ]
             logger.debug("New conversation initialized with file info: %s", file_info)
