@@ -1,5 +1,6 @@
 import os
 import asyncio
+import logging
 from openai import AsyncOpenAI
 import openai  # For accessing openai.__version__
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify
@@ -8,6 +9,9 @@ from docx import Document  # Add this import for handling .docx files
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
+
+# Initialize logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Initialize AsyncOpenAI with your API key.
 aclient = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -20,7 +24,7 @@ async def get_chat_response(messages):
     )
     content = response.choices[0].message.content
     # Check if the response is in Markdown format
-    if content.startswith('#') or any(tag in content for tag in ['*', '-', '`']):
+    if content.startswith('#') or any tag in content for tag in ['*', '-', '`']):
         content = markdown2.markdown(content, extras=["tables"])
     return content
 
@@ -35,7 +39,7 @@ def upload():
     if request.method == 'POST':
         # Clear the session to start a new conversation
         session.clear()
-        print("Session cleared")  # Debug statement
+        app.logger.debug("Session cleared")  # Debug statement
         file = request.files.get('file')
         if file:
             filename = file.filename
@@ -48,7 +52,7 @@ def upload():
             session['conversation'] = [
                 {'role': 'system', 'content': f'The following is the file content:\n{content}'}
             ]
-            print("New conversation initialized")  # Debug statement
+            app.logger.debug("New conversation initialized")  # Debug statement
             return redirect(url_for('chat'))
         return "No file uploaded", 400
 
@@ -57,7 +61,7 @@ def upload():
 @app.route('/chat', methods=['GET'])
 def chat():
     conversation = session.get('conversation', [])
-    print("Current conversation:", conversation)  # Debug statement
+    app.logger.debug("Current conversation: %s", conversation)  # Debug statement
     return render_template("chat.html", conversation=conversation)
 
 @app.route('/chat', methods=['POST'])
