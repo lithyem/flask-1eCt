@@ -26,3 +26,9 @@ body {
   -webkit-text-fill-color: transparent;
   padding-top: 100px;
 }
+.chat-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  max-height: 300px;
+  overflow: auto;
+}
