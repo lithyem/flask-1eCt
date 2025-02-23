@@ -6,7 +6,7 @@ upload_bp = Blueprint('upload', __name__)
 
 @upload_bp.route('/upload', methods=['GET', 'POST'])
 def upload():
-	session.clear()
+	
 	if request.method == 'POST':
 		file = request.files.get('file')
 		if file:
@@ -29,5 +29,6 @@ def upload():
 			]
 			return redirect(url_for("chat.chat"))
 		return "No file uploaded", 400
-
+	else:
+		session.clear()
 	return render_template("upload.html")
