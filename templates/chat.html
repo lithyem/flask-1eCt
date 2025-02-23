@@ -49,10 +49,6 @@
 				$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
 			  }
 			});
-			// Update debug logs
-			if (response.debug_logs) {
-			  $('#debug-output').text(response.debug_logs.join("\n"));
-			}
 			$('#message').val('');
 		  },
 		  complete: function() {
