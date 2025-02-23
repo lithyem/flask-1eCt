@@ -12,7 +12,7 @@ from chat import chat_bp
 
 upload_bp = Blueprint('upload', __name__)
 
-@chat_bp.route('/upload', methods=['GET', 'POST'])
+@upload_bp.route('/upload', methods=['GET', 'POST'])
 def upload():
     session.clear()
     if request.method == 'POST':
