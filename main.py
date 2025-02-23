@@ -8,6 +8,7 @@ from flask import Flask, Blueprint, request, render_template, redirect, url_for,
 import markdown2  # For Markdown to HTML conversion
 from docx import Document  # For handling .docx files
 from utils import sanitize_text
+from talk import talk_bp
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
@@ -83,6 +84,8 @@ def chat_post():
     return jsonify({
         'conversation': conversation
     })
+    
+app.register_blueprint(talk_bp)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
