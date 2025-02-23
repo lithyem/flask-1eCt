@@ -36,7 +36,7 @@ def index():
 def upload():
     session.clear()
     if request.method == 'POST':
-        return redirect(url_for('talk'))
+        return redirect("/talk"))
     return render_template("upload.html")
 
 
