@@ -59,7 +59,7 @@ def upload():
                 {'role': 'system', 'content': f'The following is the file content (truncated to {truncate_length} characters):\n{truncated_content}'},
                 {'role': 'system', 'content': file_info}
             ]
-            return redirect(url_for('chat'))
+            return redirect(url_for('talk'))
         return "No file uploaded", 400
 
     return render_template("upload.html")

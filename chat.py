@@ -11,8 +11,6 @@ from utils import sanitize_text
 
 chat_bp = Blueprint('chat', __name__)
 
-
-
 @chat_bp.route('/chat', methods=['GET'])
 def chat():
     return("hi")
