@@ -37,7 +37,7 @@
 		$('#loading-spinner').show();
 		$.ajax({
 		  type: 'POST',
-		  url: '{{ url_for("chat_post") }}',
+		  url: '/chat',
 		  data: { message: message },
 		  success: function(response) {
 			// Clear and update chat conversation
