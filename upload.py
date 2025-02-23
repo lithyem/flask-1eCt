@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint, request, render_template, redirect, url_for, session, jsonify
 from docx import Document  # For handling .docx files
+from utils import sanitize_text
 
 upload_bp = Blueprint('upload', __name__)
 
