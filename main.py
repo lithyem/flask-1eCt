@@ -36,11 +36,7 @@ def index():
 def upload():
     session.clear()
     if request.method == 'POST':
-        file = request.files.get('file')
-        if file:
-            return redirect(url_for('talk'))
-        return "No file uploaded", 400
-
+        return redirect(url_for('talk'))
     return render_template("upload.html")
 
 
