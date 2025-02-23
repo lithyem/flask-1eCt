@@ -22,9 +22,6 @@ def upload():
 				content = file.read().decode('utf-8', errors='replace')
 			content = sanitize_text(content)
 			file_info = sanitize_text(file_info)
-			#content = content.replace("<", "&lt;").replace(">", "&gt;")
-			#file_info = file_info.replace("<", "&lt;").replace(">", "&gt;")
-			# Truncate content to the first 1000 characters.
 			truncated_content = content[:truncate_length]
 			session['conversation'] = [
 				{'role': 'system', 'content': f'The following is the file content (truncated to {truncate_length} characters):\n{truncated_content}'},
