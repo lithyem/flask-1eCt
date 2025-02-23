@@ -1,3 +1,4 @@
+import os
 from flask import Flask, Blueprint, request, render_template, redirect, url_for, session, jsonify
 from talk import talk_bp
 from chat import chat_bp
