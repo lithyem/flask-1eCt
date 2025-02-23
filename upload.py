@@ -10,7 +10,7 @@ def upload():
     if request.method == 'POST':
         file = request.files.get('file')
         if file:
-            truncate_length = request.form.get('truncate_length', default=8000, type=int)
+            truncate_length = 8000
             filename = file.filename
             file_bytes = file.read()
             file_info = f"Uploaded file: {filename}, Size: {len(file_bytes)} bytes"
