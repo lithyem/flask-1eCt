@@ -9,7 +9,6 @@ import markdown2  # For Markdown to HTML conversion
 from docx import Document  # For handling .docx files
 from utils import sanitize_text
 from talk import talk_bp
-from chat import chat_bp
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
@@ -47,7 +46,6 @@ def upload():
 
     
 app.register_blueprint(talk_bp)
-app.register_blueprint(chat_bp)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
