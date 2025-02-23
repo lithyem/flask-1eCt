@@ -21,12 +21,12 @@ async def get_chat_response(messages):
         content = markdown2.markdown(content, extras=["tables"])
     return content
 
-@app.route('/chat', methods=['GET'])
-def chat():
+@chat_bp.route('/chat', methods=['GET'])
+def chat_get():
     conversation = session.get('conversation', [])
     return render_template("chat.html", conversation=conversation)
 
-@app.route('/chat', methods=['POST'])
+@chat_bp.route('/chat', methods=['POST'])
 def chat_post():
     conversation = session.get('conversation', [])
     user_message = request.form.get('message')
