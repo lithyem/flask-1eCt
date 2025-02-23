@@ -26,7 +26,7 @@ async def get_chat_response(messages):
     return content
 
 @chat_bp.route('/chat', methods=['GET'])
-def chat_get():
+def chat():
     conversation = session.get('conversation', [])
     return render_template("chat.html", conversation=conversation)
 
