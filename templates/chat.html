@@ -3,59 +3,58 @@
 {% block title %}Chat{% endblock %}
 
 {% block head %}
-  {{ super() }}
-
+	{{ super() }}
 {% endblock %}
 
 {% block body %}
-  <h1>Chat</h1>
-  <div class="chat-container" id="chat-container">
+	<h1>Chat</h1>
+	<div class="chat-container" id="chat-container">
 	{% for msg in conversation %}
-	  {% if msg.role == 'assistant' %}
+		{% if msg.role == 'assistant' %}
 		<p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|safe }}</p>
-	  {% else %}
+		{% else %}
 		<p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|e }}</p>
-	  {% endif %}
+		{% endif %}
 	{% endfor %}
-  </div>
+	</div>
 
-  <div class="loading-spinner" id="loading-spinner"></div>
-  <form id="chat-form">
-	<p>
-	  <input type="text" name="message" id="message" placeholder="Type your message" required style="width: 80%;">
-	</p>
-	<p><input type="submit" value="Send"></p>
-  </form>
-  <p><a href="{{ url_for('upload.upload') }}">Upload another file</a></p>
+	<div class="loading-spinner" id="loading-spinner"></div>
+	<form id="chat-form">
+		<p><input type="text" name="message" id="message" placeholder="Type your message" required style="width: 80%;"></p>
+		<p><input type="submit" value="Send"></p>
+	</form>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
+	<p><a href="{{ url_for('upload.upload') }}">Upload another file</a></p>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+	<script>
 	$(document).ready(function() {
-	  $('#chat-form').on('submit', function(event) {
-		event.preventDefault();
-		var message = $('#message').val();
-		$('#loading-spinner').show();
-		$.ajax({
-		  type: 'POST',
-		  url: '{{ url_for("chat.chat_post") }}',
-		  data: { message: message },
-		  success: function(response) {
-			// Clear and update chat conversation
-			$('#chat-container').empty();
-			response.conversation.forEach(function(msg) {
-			  if (msg.role === 'assistant') {
-				$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
-			  } else {
-				$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
-			  }
+		$('#chat-form').on('submit', function(event) {
+			event.preventDefault();
+			var message = $('#message').val();
+			$('#loading-spinner').show();
+			$.ajax({
+				type: 'POST',
+				url: '{{ url_for("chat.chat_post") }}',
+				data: { message: message },
+				success: function(response) {
+					// Clear and update chat conversation
+					$('#chat-container').empty();
+					response.conversation.forEach(function(msg) {
+						if (msg.role === 'assistant') {
+							$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
+						} else {
+							$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
+						}
+					});
+					$('#message').val('');
+				},
+				complete: function() {
+					$('#loading-spinner').hide();
+				}
 			});
-			$('#message').val('');
-		  },
-		  complete: function() {
-			$('#loading-spinner').hide();
-		  }
 		});
-	  });
 	});
-  </script>
+	</script>
 {% endblock %}

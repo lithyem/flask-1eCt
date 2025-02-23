@@ -13,4 +13,4 @@ talk_bp = Blueprint('talk', __name__)
 
 @talk_bp.route('/talk', methods=['GET'])
 def talk():
-    return('talk')
+	return('talk')
