@@ -7,6 +7,8 @@ import openai  # For accessing openai.__version__
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify
 import markdown2  # For Markdown to HTML conversion
 from docx import Document  # For handling .docx files
+from utils import sanitize_text
+from chat import chat_bp
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
@@ -71,27 +73,9 @@ def upload():
 
     return render_template("upload.html")
 
-@app.route('/chat', methods=['GET'])
-def chat():
-    conversation = session.get('conversation', [])
-    return render_template("chat.html", conversation=conversation)
 
-@app.route('/chat', methods=['POST'])
-def chat_post():
-    conversation = session.get('conversation', [])
-    user_message = request.form.get('message')
-    if user_message:
-        conversation.append({'role': 'user', 'content': user_message})
-        try:
-            assistant_message = asyncio.run(get_chat_response(conversation))
-            conversation.append({'role': 'assistant', 'content': assistant_message})
-        except Exception as e:
-            error_text = f"Error: {str(e)}"
-            conversation.append({'role': 'assistant', 'content': error_text})
-        session['conversation'] = conversation
-    return jsonify({
-        'conversation': conversation
-    })
+app.register_blueprint(chat_bp)
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
