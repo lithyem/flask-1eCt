@@ -10,56 +10,56 @@
 {% block body %}
   <h1>Chat</h1>
   <div class="chat-container" id="chat-container">
-    {% for msg in conversation %}
-      {% if msg.role == 'assistant' %}
-        <p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|safe }}</p>
-      {% else %}
-        <p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|e }}</p>
-      {% endif %}
-    {% endfor %}
+	{% for msg in conversation %}
+	  {% if msg.role == 'assistant' %}
+		<p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|safe }}</p>
+	  {% else %}
+		<p><strong>{{ msg.role.capitalize() }}:</strong> {{ msg.content|e }}</p>
+	  {% endif %}
+	{% endfor %}
   </div>
 
   <div class="loading-spinner" id="loading-spinner"></div>
   <form id="chat-form">
-    <p>
-      <input type="text" name="message" id="message" placeholder="Type your message" required style="width: 80%;">
-    </p>
-    <p><input type="submit" value="Send"></p>
+	<p>
+	  <input type="text" name="message" id="message" placeholder="Type your message" required style="width: 80%;">
+	</p>
+	<p><input type="submit" value="Send"></p>
   </form>
   <p><a href="{{ url_for('upload') }}">Upload another file</a></p>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    $(document).ready(function() {
-      $('#chat-form').on('submit', function(event) {
-        event.preventDefault();
-        var message = $('#message').val();
-        $('#loading-spinner').show();
-        $.ajax({
-          type: 'POST',
-          url: '{{ url_for("chat_post") }}',
-          data: { message: message },
-          success: function(response) {
-            // Clear and update chat conversation
-            $('#chat-container').empty();
-            response.conversation.forEach(function(msg) {
-              if (msg.role === 'assistant') {
-                $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
-              } else {
-                $('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
-              }
-            });
-            // Update debug logs
-            if (response.debug_logs) {
-              $('#debug-output').text(response.debug_logs.join("\n"));
-            }
-            $('#message').val('');
-          },
-          complete: function() {
-            $('#loading-spinner').hide();
-          }
-        });
-      });
-    });
+	$(document).ready(function() {
+	  $('#chat-form').on('submit', function(event) {
+		event.preventDefault();
+		var message = $('#message').val();
+		$('#loading-spinner').show();
+		$.ajax({
+		  type: 'POST',
+		  url: '{{ url_for("chat_post") }}',
+		  data: { message: message },
+		  success: function(response) {
+			// Clear and update chat conversation
+			$('#chat-container').empty();
+			response.conversation.forEach(function(msg) {
+			  if (msg.role === 'assistant') {
+				$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
+			  } else {
+				$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
+			  }
+			});
+			// Update debug logs
+			if (response.debug_logs) {
+			  $('#debug-output').text(response.debug_logs.join("\n"));
+			}
+			$('#message').val('');
+		  },
+		  complete: function() {
+			$('#loading-spinner').hide();
+		  }
+		});
+	  });
+	});
   </script>
 {% endblock %}
