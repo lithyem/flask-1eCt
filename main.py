@@ -7,19 +7,10 @@ import openai  # For accessing openai.__version__
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify
 import markdown2  # For Markdown to HTML conversion
 from docx import Document  # For handling .docx files
+from utils import sanitize_text
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
-
-# Revised function to sanitize text:
-# 1. Removes BOM if present.
-# 2. Removes unwanted ASCII control characters (0x00-0x08, 0x0B-0x0C, 0x0E-0x1F) except newline, carriage return, and tab.
-# 3. Removes Unicode line and paragraph separators (U+2028, U+2029).
-def sanitize_text(text):
-    text = text.lstrip('\ufeff')
-    text = re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', text)
-    text = re.sub(u'[\u2028\u2029]', '', text)
-    return text
 
 # Initialize AsyncOpenAI with your API key.
 aclient = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
