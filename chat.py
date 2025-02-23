@@ -8,7 +8,6 @@ from flask import Flask, Blueprint, request, render_template, redirect, url_for,
 import markdown2  # For Markdown to HTML conversion
 from docx import Document  # For handling .docx files
 from utils import sanitize_text
-from upload import upload_bp
 
 chat_bp = Blueprint('chat', __name__)
 
