@@ -13,30 +13,6 @@ from chat import chat_bp
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_default_secret')
 
-# Revised function to sanitize text:
-# 1. Removes BOM if present.
-# 2. Removes unwanted ASCII control characters (0x00-0x08, 0x0B-0x0C, 0x0E-0x1F) except newline, carriage return, and tab.
-# 3. Removes Unicode line and paragraph separators (U+2028, U+2029).
-def sanitize_text(text):
-    text = text.lstrip('\ufeff')
-    text = re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', text)
-    text = re.sub(u'[\u2028\u2029]', '', text)
-    return text
-
-# Initialize AsyncOpenAI with your API key.
-aclient = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-# Async helper function to get chat response using the new OpenAI API interface.
-async def get_chat_response(messages):
-    response = await aclient.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-    )
-    content = response.choices[0].message.content
-    if content.startswith('#') or any(tag in content for tag in ['*', '-', '`']):
-        content = markdown2.markdown(content, extras=["tables"])
-    return content
-
 @app.route('/')
 def index():
     session.clear()

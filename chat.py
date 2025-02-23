@@ -1,9 +1,13 @@
 
 import os
+import re
 import asyncio
-import markdown2
-from flask import Blueprint, session, render_template, request, jsonify
+import unicodedata
 from openai import AsyncOpenAI
+import openai  # For accessing openai.__version__
+from flask import Flask, request, render_template, redirect, url_for, session, jsonify
+import markdown2  # For Markdown to HTML conversion
+from docx import Document  # For handling .docx files
 from utils import sanitize_text
 
 chat_bp = Blueprint('chat', __name__)
