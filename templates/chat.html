@@ -44,9 +44,9 @@
 			$('#chat-container').empty();
 			response.conversation.forEach(function(msg) {
 			  if (msg.role === 'assistant') {
-				$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + msg.content + '</p>');
+				$('#chat-container').append('<p><strong>' + msg.role.capitalize() + ':</strong> ' + msg.content + '</p>');
 			  } else {
-				$('#chat-container').append('<p><strong>' + msg.role.charAt(0).toUpperCase() + msg.role.slice(1) + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
+				$('#chat-container').append('<p><strong>' + msg.role.capitalize() + ':</strong> ' + $('<div>').text(msg.content).html() + '</p>');
 			  }
 			});
 			// Update debug logs
