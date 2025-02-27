@@ -1,6 +1,7 @@
 from flask import Flask, Blueprint, request, render_template, redirect, url_for, session, jsonify
 from docx import Document  # For handling .docx files
 from utils import sanitize_text
+from PyPDF2 import PdfReader
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -18,6 +19,14 @@ def upload():
 			if filename.lower().endswith('.docx'):
 				document = Document(file)
 				content = '\n'.join([para.text for para in document.paragraphs])
+			elif filename.lower().endswith('.pdf'):
+				reader = PdfReader(file)
+				texts = []
+				for page in reader.pages:
+					text = page.extract_text()
+					if text:
+						texts.append(text)
+				content = "\n".join(texts)
 			else:
 				content = file.read().decode('utf-8', errors='replace')
 			content = sanitize_text(content)
